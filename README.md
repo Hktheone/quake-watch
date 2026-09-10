@@ -1,5 +1,11 @@
 # QuakeWatch
 
+Live real earthquake activity from USGS, plotted on a 3D globe with magnitude/region filters, stat cards, and a recent-activity feed. No backend, no API keys.
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+See [TECHNICAL.md](TECHNICAL.md) for architecture details, data flow, and implementation notes.
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.7.
 
 ## Development server

@@ -43,5 +43,5 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
-# Claude Code harness session state (local/ephemeral, not project source)
-.claude/*.lock
+# Claude Code harness config (local-only, not project source)
+.claude/
