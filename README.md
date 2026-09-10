@@ -1,28 +1,38 @@
 # QuakeWatch
 
-Live real earthquake activity from USGS, plotted on a 3D globe with magnitude/region filters, stat cards, and a recent-activity feed. No backend, no API keys.
+Live real earthquake activity from USGS, plotted on a 3D globe with magnitude/region filters, stat cards, and a recent-activity feed. No backend, no database, no API keys.
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
-See [TECHNICAL.md](TECHNICAL.md) for architecture details, data flow, and implementation notes.
+## What this is
 
-## What this actually is
+A single-page Angular 22 app that reads a public earthquake feed and renders it — nothing more.
 
-QuakeWatch shows every earthquake detected anywhere in the world over the last 24 hours, live, on an interactive 3D globe. There's no backend server, no database, no user accounts — it's a single Angular app that reads directly from a public data feed and renders it.
+- **Data source**: [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson) — free, public, no key, no subscription.
+- **Refresh**: polled every **60 seconds**. No WebSocket — plain HTTP polling, one shared poll for the whole app (not one per component).
+- **Globe**: rendered with [`globe.gl`](https://github.com/vasturiano/globe.gl) (Three.js/WebGL) — not Google Maps or Mapbox, no map API key involved.
+- **Filters**: magnitude (All / 2.5+ / 4.5+ / 6.0+ / 7.0+) and region. Region is built live from whatever's in the current data (parsed from USGS's own place text, e.g. "5 km NNW of Beaumont, CA" → "CA") — never a fixed list, and deliberately labeled "Region" rather than "Country," since USGS's feed has no real country code.
+- **Markers**: colored/sized by magnitude (green → yellow → orange → red → dark red), hover tooltip with magnitude/place/region/depth/time, auto-rotation pauses while you're looking at it.
+- **Dark / light mode**: toggle in the top bar, persisted to `localStorage`.
 
-**Data source & subscription** — earthquake data comes from the [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson), a free, public GeoJSON feed run by the US Geological Survey. No API key, no account, no subscription tier of any kind — it's open government data, free to use, forever.
+## Stack & architecture
 
-**Refresh rate** — the app polls that feed every **60 seconds**. There is **no WebSocket** and no push/streaming connection involved — it's plain HTTP polling on a fixed interval, one shared poll for the whole app (not one per component). 60s was chosen to match how often USGS actually updates the feed on their end; polling faster wouldn't surface anything newer.
+Angular 22, standalone components (no NgModules), TypeScript strict mode, Signals for all state (no NgRx), plain CSS with custom-property theming.
 
-**Maps / globe** — earthquakes are rendered on a 3D globe using [`globe.gl`](https://github.com/vasturiano/globe.gl) (built on Three.js/WebGL). This is **not Google Maps or Mapbox** — there's no map-provider account or API key involved either. The Earth texture and terrain bump map are static images pulled from a public CDN.
+```
+MainLayout (TopBar + router-outlet)
+└─ Dashboard   (the only route — stats, filters, globe, recent list)
+```
 
-**Search & filters** — two live dropdowns on the dashboard:
-- **Magnitude**: All / M2.5+ / M4.5+ / M6.0+ / M7.0+
-- **Region**: built dynamically from whatever regions actually show up in the current live data (parsed out of USGS's own place text, e.g. "5 km NNW of Beaumont, CA" → "CA") — never a fixed list, and intentionally labeled "Region" rather than "Country," since USGS's feed doesn't include a real country code.
+Services: `EarthquakeService` (the shared polling stream), `StateService` (alert toasts), `ThemeService` (dark/light).
 
-Each marker on the globe is colored and sized by magnitude (green → yellow → orange → red → dark red for the strongest quakes), shows a tooltip on hover (magnitude, place, region, depth, time), and the globe stops auto-rotating while your cursor is over it.
+One gotcha if you touch the globe code: `globe.gl` takes over the DOM element it's given, wiping its children — so it needs its own dedicated `<div>`, never a container that also holds Angular's `@if`/`@else` overlays, or Angular's structural-directive anchors get destroyed permanently.
 
-**Dark / light mode** — toggle in the top bar, remembered across visits via `localStorage`, applied instantly by switching a `data-theme` attribute that swaps a full set of CSS custom properties — no reload needed.
+## Known limitations
+
+- `ng test` isn't actually verified working in this environment (Karma/Jasmine deps never fully resolved)
+- Bundle is ~2.3MB (over the default budget, raised intentionally) — mostly `globe.gl`/Three.js
+- No persistence — everything is either live data or ephemeral UI state (filters, theme)
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.7.
 
