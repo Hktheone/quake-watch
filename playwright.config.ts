@@ -24,10 +24,17 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env['PLAYWRIGHT_TEST_BASE_URL'] ?? 'http://localhost:4200',
+    baseURL: process.env['PLAYWRIGHT_TEST_BASE_URL'] ?? 'http://localhost:4300',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+  },
+
+  /* Run your local dev server before starting the tests. See https://playwright.dev/docs/test-webserver */
+  webServer: {
+    command: 'npm start',
+    url: 'http://localhost:4300',
+    reuseExistingServer: !process.env['CI'],
   },
 
   /* Configure projects for major browsers */
