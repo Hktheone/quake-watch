@@ -45,3 +45,8 @@ Thumbs.db
 
 # Claude Code harness config (local-only, not project source)
 .claude/
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/

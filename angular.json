@@ -2,7 +2,11 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "schematicCollections": [
+      "@schematics/angular",
+      "playwright-ng-schematics"
+    ]
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -69,6 +73,17 @@
         },
         "test": {
           "builder": "@angular/build:unit-test"
+        },
+        "e2e": {
+          "builder": "playwright-ng-schematics:playwright",
+          "options": {
+            "devServerTarget": "QuakeWatch:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "QuakeWatch:serve:production"
+            }
+          }
         }
       }
     }
