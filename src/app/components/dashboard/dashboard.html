@@ -1,0 +1,97 @@
+<div class="dashboard">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Earthquakes (24h)</div>
+            <div class="stat-value">{{ totalCount() }}</div>
+            <div class="stat-change">
+                <span class="positive">● Live — USGS</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Strongest</div>
+            @if (strongestQuake(); as quake) {
+                <div class="stat-value">M {{ quake.magnitude | number: '1.1-1' }}</div>
+                <div class="stat-change">{{ quake.place }}</div>
+            } @else {
+                <div class="stat-value">—</div>
+            }
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Average Magnitude</div>
+            <div class="stat-value">{{ averageMagnitude() | number: '1.2-2' }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Active Regions</div>
+            <div class="stat-value">{{ activeRegionCount() }}</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    @if (hasData()) {
+        <div class="card search-card">
+            <select [ngModel]="minMagnitude()" (ngModelChange)="minMagnitude.set($event)" class="search-select">
+                @for (opt of magnitudeOptions; track opt.value) {
+                    <option [ngValue]="opt.value">{{ opt.label }}</option>
+                }
+            </select>
+
+            <select [ngModel]="regionFilter()" (ngModelChange)="regionFilter.set($event)" class="search-select">
+                <option value="">All regions</option>
+                @for (region of regions(); track region) {
+                    <option [value]="region">{{ region }}</option>
+                }
+            </select>
+
+            @if (hasActiveFilter()) {
+                <button class="clear-btn" (click)="clearFilters()">✕ Clear</button>
+            }
+
+            <span class="result-count">
+                Showing {{ filteredEarthquakes().length }} of {{ totalCount() }} earthquake{{ totalCount() > 1 ? 's' : '' }}
+            </span>
+        </div>
+    }
+
+    <!-- Globe -->
+    <div class="globe-container">
+        <div #globeContainer class="globe-canvas-host"></div>
+
+        @if (!hasData()) {
+            <div class="empty-overlay">Loading live earthquake data from USGS…</div>
+        } @else if (!hasResults()) {
+            <div class="empty-overlay">No earthquakes match this filter right now.</div>
+        }
+    </div>
+
+    <!-- Recent Earthquakes -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Recent Earthquakes</h2>
+            <span class="live-indicator">● Live</span>
+        </div>
+        <div class="ticker-container">
+            @for (quake of recentQuakes(); track quake.id) {
+                <div class="ticker-item">
+                    <div class="ticker-left">
+                        <div class="mag-badge" [style.background]="magnitudeColorFor(quake.magnitude)">
+                            M{{ quake.magnitude | number: '1.1-1' }}
+                        </div>
+                        <div class="ticker-info">
+                            <div class="quake-place">{{ quake.place }}</div>
+                            <div class="quake-meta">{{ quake.region }} · {{ quake.depthKm | number: '1.0-0' }} km deep</div>
+                        </div>
+                    </div>
+                    <div class="ticker-right">
+                        <div class="ticker-time">{{ quake.time | date: 'shortTime' }}</div>
+                    </div>
+                </div>
+            } @empty {
+                <div class="ticker-item">Loading…</div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,18 @@
+<div class="topbar">
+    <div class="time-display">
+        {{ currentTime() }}
+    </div>
+
+    <div class="alerts-container">
+        @for (alert of stateService.alerts(); track alert.id) {
+            <div class="alert" [class]="'alert-' + alert.type">
+                <span>{{ alert.message }}</span>
+                <button (click)="stateService.removeAlert(alert.id)">✕</button>
+            </div>
+        }
+    </div>
+
+    <button (click)="toggleTheme()" class="theme-toggle">
+        <span>{{ isDarkMode() ? '☀️' : '🌙' }}</span>
+    </button>
+</div>
