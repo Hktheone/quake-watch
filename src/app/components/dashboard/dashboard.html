@@ -33,13 +33,13 @@
     <!-- Filters -->
     @if (hasData()) {
         <div class="card search-card">
-            <select [ngModel]="minMagnitude()" (ngModelChange)="minMagnitude.set($event)" class="search-select">
+            <select [ngModel]="minMagnitude()" (ngModelChange)="minMagnitude.set($event)" class="search-select" aria-label="Minimum magnitude">
                 @for (opt of magnitudeOptions; track opt.value) {
                     <option [ngValue]="opt.value">{{ opt.label }}</option>
                 }
             </select>
 
-            <select [ngModel]="regionFilter()" (ngModelChange)="regionFilter.set($event)" class="search-select">
+            <select [ngModel]="regionFilter()" (ngModelChange)="regionFilter.set($event)" class="search-select" aria-label="Region">
                 <option value="">All regions</option>
                 @for (region of regions(); track region) {
                     <option [value]="region">{{ region }}</option>
